@@ -57,7 +57,7 @@ resource "aws_apigatewayv2_api" "api" {
 
 resource "aws_apigatewayv2_integration" "collie" { 
   api_id = aws_apigatewayv2_api.api.id
-  integration_type = "AWS"
+  integration_type = "AWS_PROXY"
   integration_method = "ANY"
   integration_uri = aws_lambda_function.collie.invoke_arn
   payload_format_version = "2.0"
