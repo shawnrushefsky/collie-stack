@@ -33,6 +33,7 @@ resource "aws_s3_bucket" "index" {
 }
 
 resource "aws_lambda_function" "collie" {
+  depends_on = [null_resource.download_zip]
   filename      = local.zip_path
   function_name = var.stack_name
   role          = aws_iam_role.collie_role.arn
