@@ -66,11 +66,11 @@ resource "aws_apigatewayv2_integration" "collie" {
 resource "aws_apigatewayv2_route" "root" {
   api_id = aws_apigatewayv2_api.api.id
   route_key = "ANY /"
-  target = aws_apigatewayv2_integration.collie.id
+  target = "integrations/${aws_apigatewayv2_integration.collie.id}"
 }
 
 resource "aws_apigatewayv2_route" "all" {
   api_id = aws_apigatewayv2_api.api.id
   route_key = "ANY /{proxy+}"
-  target = aws_apigatewayv2_integration.collie.id
+  target = "integrations/${aws_apigatewayv2_integration.collie.id}"
 }
