@@ -52,7 +52,6 @@ resource "aws_lambda_function" "collie" {
 resource "aws_apigatewayv2_api" "api" {
   name          = var.stack_name
   protocol_type = "HTTP"
-  target        = aws_lambda_function.collie.arn
 }
 
 resource "aws_apigatewayv2_integration" "collie" { 
