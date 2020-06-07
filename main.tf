@@ -39,7 +39,7 @@ resource "aws_lambda_function" "collie" {
   role          = aws_iam_role.collie_role.arn
   handler       = "index.handler"
 
-  source_code_hash = filebase64sha256(local.zip_path)
+  source_code_hash = fileexists(local.zip_path) ? filebase64sha256(local.zip_path) : "NULL"
 
   runtime = "nodejs12.x"
 
