@@ -23,6 +23,11 @@ resource "null_resource" "download_zip" {
   }
 }
 
+data "local_file" "zip" {
+  depends_on = [null_resource.download_zip]
+  filename = local.zip_path
+}
+
 resource "aws_s3_bucket" "index" {
   bucket_prefix = "${var.stack_name}-index"
   acl           = "private"
@@ -39,9 +44,9 @@ resource "aws_lambda_function" "collie" {
   role          = aws_iam_role.collie_role.arn
   handler       = "index.handler"
 
-  source_code_hash = fileexists(local.zip_path) ? filebase64sha256(local.zip_path) : "NULL"
-
   runtime = "nodejs12.x"
+
+  source_code_hash = filebase64sha256(data.local_file.zip.filename)
 
   environment {
     variables = {
