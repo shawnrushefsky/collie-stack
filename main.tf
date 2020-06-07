@@ -55,14 +55,22 @@ resource "aws_apigatewayv2_api" "api" {
   target        = aws_lambda_function.collie.arn
 }
 
+resource "aws_apigatewayv2_integration" "collie" { 
+  api_id = aws_apigatewayv2_api.api.id
+  integration_type = "AWS"
+  integration_method = "ANY"
+  integration_uri = aws_lambda_function.collie.invoke_arn
+  payload_format_version = "2.0"
+}
+
 resource "aws_apigatewayv2_route" "root" {
   api_id = aws_apigatewayv2_api.api.id
   route_key = "ANY /"
-  target = aws_lambda_function.collie.arn
+  target = aws_apigatewayv2_integration.collie.id
 }
 
 resource "aws_apigatewayv2_route" "all" {
   api_id = aws_apigatewayv2_api.api.id
   route_key = "ANY /{proxy+}"
-  target = aws_lambda_function.collie.arn
+  target = aws_apigatewayv2_integration.collie.id
 }
