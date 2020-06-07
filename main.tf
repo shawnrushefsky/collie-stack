@@ -33,6 +33,15 @@ resource "aws_s3_bucket" "index" {
   }
 }
 
+resource "aws_s3_bucket_public_access_block" "private_index" {
+  bucket = aws_s3_bucket.index.id
+
+  block_public_acls = true
+  block_public_policy = true
+  ignore_public_acls = true
+  restrict_public_buckets = true
+}
+
 resource "aws_lambda_function" "collie" {
   depends_on = [null_resource.download_zip]
   filename      = local.zip_path
