@@ -23,11 +23,6 @@ resource "null_resource" "download_zip" {
   }
 }
 
-data "local_file" "zip" {
-  depends_on = [null_resource.download_zip]
-  filename = local.zip_path
-}
-
 resource "aws_s3_bucket" "index" {
   bucket_prefix = "${var.stack_name}-index"
   acl           = "private"
@@ -45,8 +40,6 @@ resource "aws_lambda_function" "collie" {
   handler       = "index.handler"
 
   runtime = "nodejs12.x"
-
-  source_code_hash = filebase64sha256(data.local_file.zip.filename)
 
   environment {
     variables = {
