@@ -15,6 +15,7 @@ locals {
 
 resource "null_resource" "download_zip" {
   triggers = {
+    exists = fileexists(local.zip_path)
     latest = local.asset_url
   }
 
