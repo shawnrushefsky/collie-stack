@@ -57,12 +57,12 @@ resource "aws_apigatewayv2_api" "api" {
 
 resource "aws_apigatewayv2_route" "root" {
   api_id = aws_apigatewayv2_api.api.id
-  route_key = "/"
+  route_key = "ANY /"
   target = aws_lambda_function.collie.arn
 }
 
 resource "aws_apigatewayv2_route" "all" {
   api_id = aws_apigatewayv2_api.api.id
-  route_key = "/{proxy+}"
+  route_key = "ANY /{proxy+}"
   target = aws_lambda_function.collie.arn
 }
