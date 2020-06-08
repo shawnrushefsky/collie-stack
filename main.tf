@@ -51,7 +51,7 @@ resource "aws_lambda_function" "collie" {
 
   runtime = "nodejs12.x"
 
-  source_code_hash = filebase64sha256(local.zip_path)
+  source_code_hash = fileexists(local.zip_path) ? filebase64sha256(local.zip_path) : filebase64sha256("${path.module}/main.tf")
 
   environment {
     variables = {
