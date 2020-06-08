@@ -10,7 +10,7 @@ data "http" "collie_asset_info" {
 
 locals {
   asset_url = jsondecode(data.http.collie_asset_info.body)[0].browser_download_url
-  zip_path  = "${path.module}/collie.zip"
+  zip_path  = "${path.root}/collie.zip"
 }
 
 resource "null_resource" "download_zip" {
@@ -50,6 +50,8 @@ resource "aws_lambda_function" "collie" {
   handler       = "index.handler"
 
   runtime = "nodejs12.x"
+
+  source_code_hash = filebase64sha256(local.zip)
 
   environment {
     variables = {
