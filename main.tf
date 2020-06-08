@@ -1,27 +1,5 @@
-data "github_release" "collie_latest" {
-  repository  = "collie"
-  owner       = "shawnrushefsky"
-  retrieve_by = "latest"
-}
-
-data "http" "collie_asset_info" {
-  url = data.github_release.collie_latest.asserts_url
-}
-
 locals {
-  asset_url = jsondecode(data.http.collie_asset_info.body)[0].browser_download_url
-  zip_path  = "${path.root}/collie.zip"
-}
-
-resource "null_resource" "download_zip" {
-  triggers = {
-    exists = fileexists(local.zip_path)
-    latest = local.asset_url
-  }
-
-  provisioner "local-exec" {
-    command = "curl -L ${local.asset_url} --output ${local.zip_path}"
-  }
+  zip_path  = "${path.module}/collie.zip"
 }
 
 resource "aws_s3_bucket" "index" {
@@ -43,7 +21,6 @@ resource "aws_s3_bucket_public_access_block" "private_index" {
 }
 
 resource "aws_lambda_function" "collie" {
-  depends_on = [null_resource.download_zip]
   filename      = local.zip_path
   function_name = var.stack_name
   role          = aws_iam_role.collie_role.arn
@@ -51,7 +28,7 @@ resource "aws_lambda_function" "collie" {
 
   runtime = "nodejs12.x"
 
-  source_code_hash = fileexists(local.zip_path) ? filebase64sha256(local.zip_path) : filebase64sha256("${path.module}/main.tf")
+  source_code_hash = filebase64sha256(local.zip_path)
 
   environment {
     variables = {
