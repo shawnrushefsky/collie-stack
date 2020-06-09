@@ -21,14 +21,29 @@ data "aws_iam_policy_document" "lambda_assume_role" {
 
 data "aws_iam_policy_document" "access_s3" {
   statement {
+    sid = "ListBuckets"
+
+    effect = "Allow"
+
+    actions = ["s3:ListAllMyBuckets"]
+
+    resources = [
+      "arn:aws:s3:::*"
+    ]
+  }
+
+  statement {
     sid = "AccessIndexBucket"
 
     effect = "Allow"
 
-    actions = ["s3:*"]
+    actions = [
+      "s3:*"
+    ]
 
     resources = [
-      aws_s3_bucket.index.arn
+      "${aws_s3_bucket.index.arn}/",
+      "${aws_s3_bucket.index.arn}/*"
     ]
   }
 }
