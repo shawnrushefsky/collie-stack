@@ -56,17 +56,32 @@ data "aws_iam_policy_document" "use_sqs" {
 
 data "aws_iam_policy_document" "cloudwatch" {
   statement {
-    sid = "CloudwatchLogging"
+    sid = "CreateLogGroup"
 
     effect = "Allow"
 
     actions = [
       "logs:CreateLogGroup",
+    ]
+
+    resources = [
+      "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:*"
+    ]
+  }
+
+  statement {
+    sid = "SendLogs"
+
+    effect = "Allow"
+
+    actions = [
       "logs:CreateLogStream",
       "logs:PutLogEvents"
     ]
 
-    resources = ["*"]
+    resources = [
+      "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:/aws/lambda/${aws_lambda_function.collie.function_name}:*"
+    ]
   }
 }
 
