@@ -58,7 +58,7 @@ data "aws_iam_policy_document" "cloudwatch" {
   statement {
     sid = "CloudwatchLogging"
 
-    effect = "allow"
+    effect = "Allow"
 
     actions = [
       "logs:CreateLogGroup",
