@@ -77,3 +77,8 @@ resource "aws_iam_role_policy_attachment" "lambda_role_use_sqs" {
   role       = aws_iam_role.collie_role.name
   policy_arn = aws_iam_policy.use_sqs.arn
 }
+
+resource "aws_iam_role_policy_attachment" "cloudwatch" {
+  role = aws_iam_role.collie_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
