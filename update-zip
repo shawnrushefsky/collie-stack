@@ -3,4 +3,4 @@
 LATEST_BLOB=$(curl -s https://api.github.com/repos/shawnrushefsky/collie/releases/latest)
 DOWNLOAD_URL=$(echo $LATEST_BLOB | jq -r ".assets[0].browser_download_url")
 
-curl -L $DOWNLOAD_URL --output collie.zip
+curl -L $DOWNLOAD_URL --output collie-api.zip
