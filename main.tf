@@ -41,6 +41,7 @@ resource "aws_lambda_function" "collie_api" {
       QUEUE_URL                = aws_sqs_queue.indexing_queue.id
       LOCK_TABLE               = aws_dynamodb_table.distributed_lock.id
       LOCK_TABLE_PARTITION_KEY = local.dynamo_partition_key
+      INDEX_CACHE_TTL_SECONDS  = var.index_cache_ttl
     }
   }
 }
