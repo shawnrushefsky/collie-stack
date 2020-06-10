@@ -58,7 +58,6 @@ data "aws_iam_policy_document" "use_sqs" {
     effect = "Allow"
 
     actions = [
-      "sqs:CreateQueue",
       "sqs:GetQueueUrl",
       "sqs:SendMessage"
     ]
