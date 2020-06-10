@@ -1,6 +1,10 @@
 #! /usr/bin/bash
 
 LATEST_BLOB=$(curl -s https://api.github.com/repos/shawnrushefsky/collie/releases/latest)
-DOWNLOAD_URL=$(echo $LATEST_BLOB | jq -r ".assets[0].browser_download_url")
+ASSETS=$(echo $LATEST_BLOB | jq -r ".assets[] | @base64")
 
-curl -L $DOWNLOAD_URL --output collie-api.zip
+for asset in $ASSETS; do
+  FILENAME=$(echo $asset | base64 --decode | jq -r ".name")
+  DOWNLOAD_URL=$(echo $asset | base64 --decode | jq -r ".browser_download_url")
+  curl -L $DOWNLOAD_URL --output $FILENAME
+done
