@@ -1,5 +1,5 @@
 resource "aws_iam_role" "collie_indexer_role" {
-  name = "${var.stack_name}-role"
+  name = "${var.stack_name}-indexer-role"
 
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
 }
@@ -83,7 +83,7 @@ data "aws_iam_policy_document" "indexer_cloudwatch" {
 }
 
 resource "aws_iam_policy" "indexer_access_s3" {
-  name        = "${var.stack_name}-access-s3"
+  name        = "${var.stack_name}-indexer-access-s3"
   description = "This policy grants access to the collie index bucket"
 
   policy = data.aws_iam_policy_document.indexer_access_s3.json
@@ -95,7 +95,7 @@ resource "aws_iam_role_policy_attachment" "indexer_access_s3" {
 }
 
 resource "aws_iam_policy" "indexer_use_sqs" {
-  name        = "${var.stack_name}-use-sqs"
+  name        = "${var.stack_name}-indexer-use-sqs"
   description = "This policy grants access to the collie index bucket"
 
   policy = data.aws_iam_policy_document.indexer_use_sqs.json
@@ -107,7 +107,7 @@ resource "aws_iam_role_policy_attachment" "indexer_use_sqs" {
 }
 
 resource "aws_iam_policy" "indexer_cloudwatch" { 
-  name = "${var.stack_name}-cloudwatch-logs"
+  name = "${var.stack_name}-indexer-cloudwatch-logs"
   description = "This policy grants lambda the ability to write logs to cloudwatch"
 
   policy = data.aws_iam_policy_document.indexer_cloudwatch.json
