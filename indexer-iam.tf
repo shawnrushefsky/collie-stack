@@ -1,4 +1,4 @@
-resource "aws_iam_role" "collie_api_role" {
+resource "aws_iam_role" "collie_indexer_role" {
   name = "${var.stack_name}-role"
 
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
@@ -58,12 +58,13 @@ data "aws_iam_policy_document" "use_sqs" {
     effect = "Allow"
 
     actions = [
-      "sqs:GetQueueUrl",
-      "sqs:SendMessage"
+      "sqs:ReceiveMessage",
+      "sqs:DeleteMessage",
+      "sqs:GetQueueAttributes"
     ]
 
     resources = [
-      "arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:${var.stack_name}*"
+      aws_sqs_queue.indexing_queue.arn
     ]
   }
 }
@@ -94,7 +95,7 @@ data "aws_iam_policy_document" "cloudwatch" {
     ]
 
     resources = [
-      "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${aws_lambda_function.collie.function_name}:*"
+      "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${aws_lambda_function.collie_indexer.function_name}:*"
     ]
   }
 }
@@ -107,7 +108,7 @@ resource "aws_iam_policy" "access_s3" {
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_role_access_s3" {
-  role       = aws_iam_role.collie_api_role.name
+  role       = aws_iam_role.collie_indexer_role.name
   policy_arn = aws_iam_policy.access_s3.arn
 }
 
@@ -119,7 +120,7 @@ resource "aws_iam_policy" "use_sqs" {
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_role_use_sqs" {
-  role       = aws_iam_role.collie_api_role.name
+  role       = aws_iam_role.collie_indexer_role.name
   policy_arn = aws_iam_policy.use_sqs.arn
 }
 
@@ -131,6 +132,6 @@ resource "aws_iam_policy" "cloudwatch" {
 }
 
 resource "aws_iam_role_policy_attachment" "cloudwatch" {
-  role = aws_iam_role.collie_api_role.name
+  role = aws_iam_role.collie_indexer_role.name
   policy_arn = aws_iam_policy.cloudwatch.arn
 }

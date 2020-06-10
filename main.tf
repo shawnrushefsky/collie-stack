@@ -34,14 +34,37 @@ resource "aws_lambda_function" "collie_api" {
   environment {
     variables = {
       INDEX_S3_BUCKET = aws_s3_bucket.index.bucket
-      STACK_NAME = var.stack_name
-      QUEUE_URL = aws_sqs_queue.terraform_queue.id
+      QUEUE_URL = aws_sqs_queue.indexing_queue.id
     }
   }
 }
 
-resource "aws_sqs_queue" "terraform_queue" { 
+resource "aws_lambda_function" "collie_indexer" {
+  filename      = local.indexer_artifact_path
+  function_name = "${var.stack_name}-indexer"
+  role          = aws_iam_role.collie_indexer_role.arn
+  handler       = "index.handler"
+
+  runtime = "nodejs12.x"
+
+  source_code_hash = filebase64sha256(local.indexer_artifact_path)
+
+  environment {
+    variables = {
+      INDEX_S3_BUCKET = aws_s3_bucket.index.bucket
+    }
+  }
+}
+
+resource "aws_sqs_queue" "indexing_queue" { 
   name = "${var.stack_name}-collie-ingest.fifo"
   fifo_queue = true
   visibility_timeout_seconds = 300
+}
+
+resource "aws_lambda_event_source_mapping" "event_source_mapping" {
+  batch_size        = 10
+  event_source_arn  = aws_sqs_queue.indexing_queue.arn
+  enabled           = true
+  function_name     = aws_lambda_function.collie_indexer.arn
 }
