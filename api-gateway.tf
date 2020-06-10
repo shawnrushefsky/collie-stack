@@ -7,7 +7,7 @@ resource "aws_apigatewayv2_integration" "collie" {
   api_id = aws_apigatewayv2_api.api.id
   integration_type = "AWS_PROXY"
   integration_method = "POST"
-  integration_uri = aws_lambda_function.collie.invoke_arn
+  integration_uri = aws_lambda_function.collie_api.invoke_arn
   payload_format_version = "2.0"
 }
 
@@ -32,7 +32,7 @@ resource "aws_apigatewayv2_stage" "default" {
 resource "aws_lambda_permission" "allow_api_gateway" {
   statement_id = "AllowExecutionFromAPIGateway"
   action = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.collie.function_name
+  function_name = aws_lambda_function.collie_api.function_name
   principal = "apigateway.amazonaws.com"
   source_arn = "${aws_apigatewayv2_api.api.execution_arn}/*/*/*"
 }

@@ -1,4 +1,4 @@
-resource "aws_iam_role" "collie_role" {
+resource "aws_iam_role" "collie_api_role" {
   name = "${var.stack_name}-role"
 
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
@@ -107,7 +107,7 @@ resource "aws_iam_policy" "access_s3" {
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_role_access_s3" {
-  role       = aws_iam_role.collie_role.name
+  role       = aws_iam_role.collie_api_role.name
   policy_arn = aws_iam_policy.access_s3.arn
 }
 
@@ -119,7 +119,7 @@ resource "aws_iam_policy" "use_sqs" {
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_role_use_sqs" {
-  role       = aws_iam_role.collie_role.name
+  role       = aws_iam_role.collie_api_role.name
   policy_arn = aws_iam_policy.use_sqs.arn
 }
 
@@ -131,6 +131,6 @@ resource "aws_iam_policy" "cloudwatch" {
 }
 
 resource "aws_iam_role_policy_attachment" "cloudwatch" {
-  role = aws_iam_role.collie_role.name
+  role = aws_iam_role.collie_api_role.name
   policy_arn = aws_iam_policy.cloudwatch.arn
 }

@@ -21,10 +21,10 @@ resource "aws_s3_bucket_public_access_block" "private_index" {
   restrict_public_buckets = true
 }
 
-resource "aws_lambda_function" "collie" {
+resource "aws_lambda_function" "collie_api" {
   filename      = local.api_artifact_path
   function_name = "${var.stack_name}-api"
-  role          = aws_iam_role.collie_role.arn
+  role          = aws_iam_role.collie_api_role.arn
   handler       = "index.handler"
 
   runtime = "nodejs12.x"
