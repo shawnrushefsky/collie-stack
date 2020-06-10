@@ -38,6 +38,7 @@ resource "aws_lambda_function" "collie_api" {
     variables = {
       INDEX_S3_BUCKET = aws_s3_bucket.index.bucket
       QUEUE_URL = aws_sqs_queue.indexing_queue.id
+      LOCK_TABLE = aws_dynamodb_table.distributed_lock.id
     }
   }
 }
@@ -55,6 +56,7 @@ resource "aws_lambda_function" "collie_indexer" {
   environment {
     variables = {
       INDEX_S3_BUCKET = aws_s3_bucket.index.bucket
+      LOCK_TABLE = aws_dynamodb_table.distributed_lock.id
     }
   }
 }
@@ -72,4 +74,17 @@ resource "aws_lambda_event_source_mapping" "event_source_mapping" {
   event_source_arn  = aws_sqs_queue.indexing_queue.arn
   enabled           = true
   function_name     = aws_lambda_function.collie_indexer.arn
+}
+
+resource "aws_dynamodb_table" "distributed_lock" {
+  name = "${var.stack_name}-distributed-lock"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key = "id"
+
+  attribute = [
+    {
+      name = "id"
+      type = "S"
+    }
+  ]
 }

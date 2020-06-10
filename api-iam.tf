@@ -95,6 +95,24 @@ data "aws_iam_policy_document" "api_cloudwatch" {
   }
 }
 
+data "aws_iam_policy_document" "lock_table" {
+  statement {
+    sid = "UseLockTable"
+
+    effect = "Allow"
+
+    actions = [
+      "dynamodb:GetItem",
+      "dynamodb:PutItem",
+      "dynamodb:UpdateItem"
+    ]
+
+    resources = [
+      aws_dynamodb_table.distributed_lock.arn
+    ]
+  }
+}
+
 resource "aws_iam_policy" "api_access_s3" {
   name        = "${var.stack_name}-api-access-s3"
   description = "This policy grants access to the collie index bucket"
@@ -129,4 +147,16 @@ resource "aws_iam_policy" "api_cloudwatch" {
 resource "aws_iam_role_policy_attachment" "api_cloudwatch" {
   role = aws_iam_role.collie_api_role.name
   policy_arn = aws_iam_policy.api_cloudwatch.arn
+}
+
+resource "aws_iam_policy" "lock_table" { 
+  name = "${var.stack_name}-distributed-lock"
+  description = "This policy grants lambda the ability to use distributed locks in dynamodb"
+
+  policy = data.aws_iam_policy_document.lock_table.json
+}
+
+resource "aws_iam_role_policy_attachment" "api_locktable" {
+  role = aws_iam_role.collie_api_role.name
+  policy_arn = aws_iam_policy.lock_table.arn
 }
