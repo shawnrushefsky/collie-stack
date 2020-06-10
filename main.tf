@@ -59,30 +59,31 @@ resource "aws_lambda_function" "collie_indexer" {
   }
 }
 
-data "aws_iam_policy_document" "indexing_queue_permissions" {
-  statement {
-    sid = "UseLambdaTrigger"
+# data "aws_iam_policy_document" "indexing_queue_permissions" {
+#   statement {
+#     sid = "UseLambdaTrigger"
 
-    effect = "Allow"
+#     effect = "Allow"
 
-    actions = [
-      "lambda:CreateEventSourceMapping",
-      "lambda:ListEventSourceMappings",
-      "lambda:ListFunctions"
-    ]
+#     actions = [
+#       "lambda:CreateEventSourceMapping",
+#       "lambda:ListEventSourceMappings",
+#       "lambda:ListFunctions"
+#     ]
 
-    resources = [
-      aws_lambda_function.collie_indexer.arn
-    ]
-  }
-}
+#     resources = [
+#       aws_lambda_function.collie_indexer.arn
+#     ]
+#   }
+# }
 
 resource "aws_sqs_queue" "indexing_queue" { 
   name = "${var.stack_name}-collie-ingest.fifo"
   fifo_queue = true
   visibility_timeout_seconds = 300
+  content_based_deduplication = true
 
-  policy = data.aws_iam_policy_document.indexing_queue_permissions.json
+  # policy = data.aws_iam_policy_document.indexing_queue_permissions.json
 }
 
 resource "aws_lambda_event_source_mapping" "event_source_mapping" {
