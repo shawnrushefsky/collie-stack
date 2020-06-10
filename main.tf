@@ -1,6 +1,7 @@
 locals {
   api_artifact_path  = "${path.module}/collie-api.zip"
   indexer_artifact_path = "${path.module}/collie-indexer.zip"
+  dynamo_partition_key = "id"
 }
 
 data "aws_caller_identity" "current" {}
@@ -39,6 +40,7 @@ resource "aws_lambda_function" "collie_api" {
       INDEX_S3_BUCKET = aws_s3_bucket.index.bucket
       QUEUE_URL = aws_sqs_queue.indexing_queue.id
       LOCK_TABLE = aws_dynamodb_table.distributed_lock.id
+      LOCK_TABLE_PARTITION_KEY = local.dynamo_partition_key
     }
   }
 }
@@ -57,6 +59,7 @@ resource "aws_lambda_function" "collie_indexer" {
     variables = {
       INDEX_S3_BUCKET = aws_s3_bucket.index.bucket
       LOCK_TABLE = aws_dynamodb_table.distributed_lock.id
+      LOCK_TABLE_PARTITION_KEY = local.dynamo_partition_key
     }
   }
 }
@@ -79,11 +82,11 @@ resource "aws_lambda_event_source_mapping" "event_source_mapping" {
 resource "aws_dynamodb_table" "distributed_lock" {
   name = "${var.stack_name}-distributed-lock"
   billing_mode = "PAY_PER_REQUEST"
-  hash_key = "id"
+  hash_key = local.dynamo_partition_key
 
   attribute = [
     {
-      name = "id"
+      name = local.dynamo_partition_key
       type = "S"
     }
   ]
