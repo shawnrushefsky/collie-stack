@@ -1,7 +1,7 @@
 locals {
-  api_artifact_path  = "${path.module}/collie-api.zip"
+  api_artifact_path     = "${path.module}/collie-api.zip"
   indexer_artifact_path = "${path.module}/collie-indexer.zip"
-  dynamo_partition_key = "id"
+  dynamo_partition_key  = "id"
 }
 
 data "aws_caller_identity" "current" {}
@@ -19,9 +19,9 @@ resource "aws_s3_bucket" "index" {
 resource "aws_s3_bucket_public_access_block" "private_index" {
   bucket = aws_s3_bucket.index.id
 
-  block_public_acls = true
-  block_public_policy = true
-  ignore_public_acls = true
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
   restrict_public_buckets = true
 }
 
@@ -37,9 +37,9 @@ resource "aws_lambda_function" "collie_api" {
 
   environment {
     variables = {
-      INDEX_S3_BUCKET = aws_s3_bucket.index.bucket
-      QUEUE_URL = aws_sqs_queue.indexing_queue.id
-      LOCK_TABLE = aws_dynamodb_table.distributed_lock.id
+      INDEX_S3_BUCKET          = aws_s3_bucket.index.bucket
+      QUEUE_URL                = aws_sqs_queue.indexing_queue.id
+      LOCK_TABLE               = aws_dynamodb_table.distributed_lock.id
       LOCK_TABLE_PARTITION_KEY = local.dynamo_partition_key
     }
   }
@@ -57,37 +57,35 @@ resource "aws_lambda_function" "collie_indexer" {
 
   environment {
     variables = {
-      INDEX_S3_BUCKET = aws_s3_bucket.index.bucket
-      LOCK_TABLE = aws_dynamodb_table.distributed_lock.id
+      INDEX_S3_BUCKET          = aws_s3_bucket.index.bucket
+      LOCK_TABLE               = aws_dynamodb_table.distributed_lock.id
       LOCK_TABLE_PARTITION_KEY = local.dynamo_partition_key
     }
   }
 }
 
 
-resource "aws_sqs_queue" "indexing_queue" { 
-  name = "${var.stack_name}-collie-ingest.fifo"
-  fifo_queue = true
-  visibility_timeout_seconds = 300
+resource "aws_sqs_queue" "indexing_queue" {
+  name                        = "${var.stack_name}-collie-ingest.fifo"
+  fifo_queue                  = true
+  visibility_timeout_seconds  = 300
   content_based_deduplication = true
 }
 
 resource "aws_lambda_event_source_mapping" "event_source_mapping" {
-  batch_size        = 10
-  event_source_arn  = aws_sqs_queue.indexing_queue.arn
-  enabled           = true
-  function_name     = aws_lambda_function.collie_indexer.arn
+  batch_size       = 10
+  event_source_arn = aws_sqs_queue.indexing_queue.arn
+  enabled          = true
+  function_name    = aws_lambda_function.collie_indexer.arn
 }
 
 resource "aws_dynamodb_table" "distributed_lock" {
-  name = "${var.stack_name}-distributed-lock"
+  name         = "${var.stack_name}-distributed-lock"
   billing_mode = "PAY_PER_REQUEST"
-  hash_key = local.dynamo_partition_key
+  hash_key     = local.dynamo_partition_key
 
-  attribute = [
-    {
-      name = local.dynamo_partition_key
-      type = "S"
-    }
-  ]
+  attribute {
+    name = local.dynamo_partition_key
+    type = "S"
+  }
 }

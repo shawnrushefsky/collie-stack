@@ -106,19 +106,19 @@ resource "aws_iam_role_policy_attachment" "indexer_use_sqs" {
   policy_arn = aws_iam_policy.indexer_use_sqs.arn
 }
 
-resource "aws_iam_policy" "indexer_cloudwatch" { 
-  name = "${var.stack_name}-indexer-cloudwatch-logs"
+resource "aws_iam_policy" "indexer_cloudwatch" {
+  name        = "${var.stack_name}-indexer-cloudwatch-logs"
   description = "This policy grants lambda the ability to write logs to cloudwatch"
 
   policy = data.aws_iam_policy_document.indexer_cloudwatch.json
 }
 
 resource "aws_iam_role_policy_attachment" "indexer_cloudwatch" {
-  role = aws_iam_role.collie_indexer_role.name
+  role       = aws_iam_role.collie_indexer_role.name
   policy_arn = aws_iam_policy.indexer_cloudwatch.arn
 }
 
 resource "aws_iam_role_policy_attachment" "indexer_locktable" {
-  role = aws_iam_role.collie_indexer_role.name
+  role       = aws_iam_role.collie_indexer_role.name
   policy_arn = aws_iam_policy.lock_table.arn
 }

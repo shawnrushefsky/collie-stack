@@ -137,26 +137,26 @@ resource "aws_iam_role_policy_attachment" "api_use_sqs" {
   policy_arn = aws_iam_policy.api_use_sqs.arn
 }
 
-resource "aws_iam_policy" "api_cloudwatch" { 
-  name = "${var.stack_name}-api-cloudwatch-logs"
+resource "aws_iam_policy" "api_cloudwatch" {
+  name        = "${var.stack_name}-api-cloudwatch-logs"
   description = "This policy grants lambda the ability to write logs to cloudwatch"
 
   policy = data.aws_iam_policy_document.api_cloudwatch.json
 }
 
 resource "aws_iam_role_policy_attachment" "api_cloudwatch" {
-  role = aws_iam_role.collie_api_role.name
+  role       = aws_iam_role.collie_api_role.name
   policy_arn = aws_iam_policy.api_cloudwatch.arn
 }
 
-resource "aws_iam_policy" "lock_table" { 
-  name = "${var.stack_name}-distributed-lock"
+resource "aws_iam_policy" "lock_table" {
+  name        = "${var.stack_name}-distributed-lock"
   description = "This policy grants lambda the ability to use distributed locks in dynamodb"
 
   policy = data.aws_iam_policy_document.lock_table.json
 }
 
 resource "aws_iam_role_policy_attachment" "api_locktable" {
-  role = aws_iam_role.collie_api_role.name
+  role       = aws_iam_role.collie_api_role.name
   policy_arn = aws_iam_policy.lock_table.arn
 }
