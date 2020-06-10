@@ -3,6 +3,9 @@ locals {
   indexer_artifact_path = "${path.module}/collie-indexer.zip"
 }
 
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
 resource "aws_s3_bucket" "index" {
   bucket_prefix = "${var.stack_name}-index"
   acl           = "private"
