@@ -30,6 +30,7 @@ resource "aws_lambda_function" "collie_api" {
   function_name = "${var.stack_name}-api"
   role          = aws_iam_role.collie_api_role.arn
   handler       = "index.handler"
+  timeout       = 15
 
   runtime = "nodejs12.x"
 
@@ -51,6 +52,7 @@ resource "aws_lambda_function" "collie_indexer" {
   function_name = "${var.stack_name}-indexer"
   role          = aws_iam_role.collie_indexer_role.arn
   handler       = "index.handler"
+  timeout       = 60
 
   runtime = "nodejs12.x"
 
@@ -69,12 +71,12 @@ resource "aws_lambda_function" "collie_indexer" {
 resource "aws_sqs_queue" "indexing_queue" {
   name                        = "${var.stack_name}-collie-ingest.fifo"
   fifo_queue                  = true
-  visibility_timeout_seconds  = 300
+  visibility_timeout_seconds  = 360
   content_based_deduplication = true
 }
 
 resource "aws_lambda_event_source_mapping" "event_source_mapping" {
-  batch_size       = 10
+  batch_size       = 100
   event_source_arn = aws_sqs_queue.indexing_queue.arn
   enabled          = true
   function_name    = aws_lambda_function.collie_indexer.arn
